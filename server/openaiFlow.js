@@ -3,7 +3,7 @@ import OpenAI from "openai";
 import { dbQuery } from "./db.js"; // optional: your DB access helper
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: 123,
 });
 
 /**
