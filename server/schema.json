@@ -1,0 +1,26 @@
+[
+  {
+    "table": "departments",
+    "description": "Contains company departments with their budgets and managers. Columns: department_id, department_name, manager_id, budget, created_at."
+  },
+  {
+    "table": "employees",
+    "description": "Employee records including job title, department, salary, and manager. Columns: employee_id, first_name, last_name, email, job_title, salary, department_id, manager_id."
+  },
+  {
+    "table": "customers",
+    "description": "Customer info: company name, contact, email, location, etc."
+  },
+  {
+    "table": "products",
+    "description": "Products offered: product name, description, category, price, stock quantity, and supplier."
+  },
+  {
+    "table": "orders",
+    "description": "Customer orders, linking to employees and customers, with total amount and status."
+  },
+  {
+    "table": "order_details",
+    "description": "Line items for each order, quantity, price, and discount."
+  }
+]

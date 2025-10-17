@@ -1,10 +1,14 @@
 // server/openaiFlow.js
 import OpenAI from "openai";
 import { dbQuery } from "./db.js"; // optional: your DB access helper
+import { getRelevantTables } from "./embeddings.js";
 
-const openai = new OpenAI({
-  apiKey: 123,
-});
+// --- Helper: create OpenAI client dynamically ---
+function createOpenAIClient() {
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+  });
+}
 
 /**
  * Main orchestrator for handling natural-language business data queries
@@ -13,19 +17,29 @@ const openai = new OpenAI({
  */
 export async function runOpenAIBusinessFlow(userPrompt) {
   try {
-    // 1️⃣ INTENT / PLAN GENERATION
+    // 🧭 1️⃣ Retrieve relevant schema
+    const topTables = await getRelevantTables(userPrompt);
+    const schemaContext = topTables
+      .map((t) => `Table: ${t.table}\n${t.description}`)
+      .join("\n\n");
+
+    const openai = createOpenAIClient();
+
+
+    // 🧩 2️⃣ Intent generation
     const planRes = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4-turbo",
       messages: [
         {
           role: "system",
-          content:
-            "You are an AI that converts business questions into structured query plans. Be concise.",
+          content: `You are an AI that converts business questions into query plans.
+          Here are the most relevant database tables:\n${schemaContext}`,
         },
         { role: "user", content: userPrompt },
       ],
       temperature: 0.2,
     });
+
 
     const planText = planRes.choices[0].message.content;
     console.log("🧩 Plan:", planText);
