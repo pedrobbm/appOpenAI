@@ -21,6 +21,7 @@ await initSchemaEmbeddings();
 
 app.post("/api/chat", async (req, res) => {
   const { message } = req.body;
+  console.log("req.body : " + req.body)
   try {
     const result = await runOpenAIBusinessFlow(message);
     res.json({ reply: result });

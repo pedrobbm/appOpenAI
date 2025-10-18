@@ -28,7 +28,7 @@ export async function runOpenAIBusinessFlow(userPrompt) {
 
     // 🧩 2️⃣ Intent generation
     const planRes = await openai.chat.completions.create({
-      model: "gpt-4-turbo",
+      model: "gpt-5-mini",
       messages: [
         {
           role: "system",
@@ -46,7 +46,7 @@ export async function runOpenAIBusinessFlow(userPrompt) {
 
     // 2️⃣ SQL GENERATION (mock schema for example)
     const sqlRes = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-5-mini",
       messages: [
         {
           role: "system",
@@ -69,7 +69,7 @@ export async function runOpenAIBusinessFlow(userPrompt) {
 
     // 4️⃣ ANALYSIS / EXPLANATION (GPT-4)
     const analysisRes = await openai.chat.completions.create({
-      model: "gpt-4-turbo",
+      model: "gpt-5-mini",
       messages: [
         {
           role: "system",
@@ -89,3 +89,4 @@ export async function runOpenAIBusinessFlow(userPrompt) {
     throw new Error("Error running OpenAI business flow");
   }
 }
+

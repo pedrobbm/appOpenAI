@@ -39,25 +39,31 @@ export async function initSchemaEmbeddings() {
   //              V LATER TAKE OUT V and uncomment
   // ======================================================
   // 🐍 Run Python script to generate embeddings locally
-  const result = spawnSync("python", ["./generateEmbeddings.py"], {
-    encoding: "utf-8",
-    stdio: "inherit", // show Python output in Node console
-  });
 
-  if (result.error) {
-    console.error("❌ Python embedding script failed:", result.error);
-    throw result.error;
+  if (fs.existsSync(CACHE_PATH)) {
+    schemaEmbeddings = JSON.parse(fs.readFileSync(CACHE_PATH, "utf8"));
+    console.log("✅ Schema embeddings initialized (from existing local file).");
+
+
+    const result = spawnSync("python", ["./generateEmbeddings.py"], {
+      encoding: "utf-8",
+      stdio: "inherit", // show Python output in Node console
+    });
+
+    if (result.error) {
+      console.error("❌ Python embedding script failed:", result.error);
+      throw result.error;
+    }
+
+    // ✅ Use consistent lowercase underscore naming
+    if (!fs.existsSync(CACHE_PATH)) {
+      throw new Error("❌ schema_embeddings.json not found after Python run.");
+    }
+
+    schemaEmbeddings = JSON.parse(fs.readFileSync(CACHE_PATH, "utf8"));
+    console.log("✅ Schema embeddings initialized (new, from local file).");
   }
-
-  // ✅ Use consistent lowercase underscore naming
-  if (!fs.existsSync(CACHE_PATH)) {
-    throw new Error("❌ schema_embeddings.json not found after Python run.");
-  }
-
-  schemaEmbeddings = JSON.parse(fs.readFileSync(CACHE_PATH, "utf8"));
-  console.log("✅ Schema embeddings initialized (from local file).");
 }
-
 // ======================================================
 //              ^ LATER TAKE OUT  ^
 // ======================================================
@@ -80,16 +86,20 @@ export async function getRelevantTables(userPrompt, topK = 3) {
   console.log("🔍 Getting relevant tables for user prompt...");
 
   // 🐍 Use Python again to embed the user prompt
-  const py = spawnSync("python", ["./encodePrompt.py", userPrompt], {
-    encoding: "utf-8",
-  });
+  const py = spawnSync("python", ["./encodePrompt.py", userPrompt], { encoding: "utf-8" });
 
-  if (py.error) {
-    console.error("❌ Failed to run encodePrompt.py:", py.error);
-    throw py.error;
+  if (!py.stdout) {
+    throw new Error("❌ encodePrompt.py returned no output");
   }
 
-  const userEmbedding = JSON.parse(py.stdout);
+  let userEmbedding;
+  try {
+    userEmbedding = JSON.parse(py.stdout);
+  } catch (err) {
+    console.error("❌ Failed to parse Python output:", py.stdout);
+    throw err;
+  }
+
 
   // ======================================================
   //              ^ LATER TAKE OUT  ^

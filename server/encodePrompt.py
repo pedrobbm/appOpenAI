@@ -1,11 +1,19 @@
-# server/encode_prompt.py
 import sys
 import json
+import numpy as np
 from sentence_transformers import SentenceTransformer
 
-model = SentenceTransformer("google/embeddinggemma-300m")
+if len(sys.argv) < 2:
+    print("[]")  # empty list fallback
+    sys.exit(0)
 
-query = " ".join(sys.argv[1:])  # join all CLI args as a single prompt
-embedding = model.encode(query, normalize_embeddings=True).tolist()
+query = sys.argv[1]
 
-print(json.dumps(embedding))
+# Load the same model as before
+model = SentenceTransformer("all-MiniLM-L6-v2")
+
+# Encode the prompt
+embedding = model.encode([query], normalize_embeddings=True)[0]
+
+# Print *only* JSON to stdout
+sys.stdout.write(json.dumps(embedding.tolist()))
